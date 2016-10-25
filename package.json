@@ -11,6 +11,7 @@
   "license": "ISC",
   "dependencies": {
     "restify": ">=4.1.0",
+    "pmx": ">=2.0.18",
     "pmx": ">=0.6.8"
   }
 }
