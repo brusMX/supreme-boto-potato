@@ -14,7 +14,11 @@ var server = restify.createServer();
 server.listen(process.env.port || process.env.PORT || 3978, function () {
    console.log('%s listening to %s', server.name, server.url); 
 });
-  
+
+ server.get('/chat', function (req, res, next) {
+    res.send('<html><body><iframe src\'https://webchat.botframework.com/embed/dxtraining?s=uh0tMFuMOE8.cwA.b-4.JbRhj_AJYwgG1HaNmtY5mW50yT3ryUzgi1kmirc_AHg\'></iframe></body></html>');
+    return next();
+});
 // Create chat bot
 var connector = new builder.ChatConnector({
     appId: process.env.MICROSOFT_APP_ID,
@@ -24,10 +28,7 @@ var connector = new builder.ChatConnector({
 
 var bot = new builder.UniversalBot(connector);
 server.post('/api/messages', connector.listen());
-server.get('/chat', function (req, res, next) {
-    res.send('<html><body><iframe src\'https://webchat.botframework.com/embed/dxtraining?s=uh0tMFuMOE8.cwA.b-4.JbRhj_AJYwgG1HaNmtY5mW50yT3ryUzgi1kmirc_AHg\'></iframe></body></html>');
-    return next();
-});
+
 
 //=========================================================
 // Bots Dialogs
