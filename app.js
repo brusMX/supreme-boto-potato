@@ -30,31 +30,103 @@ server.post('/api/messages', connector.listen());
 // Bots Dialogs
 //=========================================================
 
-var questions =  [ 
-    { q: "Which of the following commands can be used to assure that a file 'myfile' exists?", o:['cp myfile /dev/null','touch myfile','create myfile','mkfile myfile'], a:2 },
-    { q: "What is 3?", o:['1','2','3'], a:3 },
-    { q: "What is 1?", o:['1','2','3'], a:1 },
-    { q: "What is 2?", o:['1','2','3'], a:2},
-    { q: "What is 4?", o:['1','2','3','4'], a:4 }
-   ];
-var rnd = Math.floor(Math.random() * (6));
-var correctAns = 0;
 bot.dialog('/', [
     function (session) {
-        builder.Prompts.text(session, "Hello! I´m the supreme bot-o potato. What's your name?");
+        session.send("Hello... I'm a decision bot.");
+        session.beginDialog('/menu');
     },
     function (session, results) {
-        session.userData.name = results.response;
-        builder.Prompts.number(session, "I salu-tato you, " + results.response + ". " + questions[rnd].q, questions[rnd].o); 
-    },
-    function (session, results) {
-        if(results.response == questions[rnd].a) 
-            correctAns++;
-        builder.Prompts.number(session, questions[rnd].q, questions[rnd].o); 
-    },
-    function (session, results) {
-        session.userData.count = correctAns;
-        session.send("Thank you " + session.userData.name + 
-                     "you had " + session.userData.count + "answers right.");
+        session.endConversation("Goodbye until next time...");
     }
 ]);
+
+bot.dialog('/menu', [
+    function (session) {
+        builder.Prompts.choice(session, "Choose an option:", 'Flip A Coin|Roll Dice|Magic 8-Ball|Quit');
+    },
+    function (session, results) {
+        switch (results.response.index) {
+            case 0:
+                session.beginDialog('/flipCoin');
+                break;
+            case 1:
+                session.beginDialog('/rollDice');
+                break;
+            case 2:
+                session.beginDialog('/magicBall');
+                break;
+            default:
+                session.endDialog();
+                break;
+        }
+    },
+    function (session) {
+        // Reload menu
+        session.replaceDialog('/menu');
+    }
+]).reloadAction('showMenu', null, { matches: /^(menu|back)/i });
+
+bot.dialog('/flipCoin', [
+    function (session, args) {
+        builder.Prompts.choice(session, "Choose heads or tails.", "heads|tails", { listStyle: builder.ListStyle.none })
+    },
+    function (session, results) {
+        var flip = Math.random() > 0.5 ? 'heads' : 'tails';
+        if (flip == results.response.entity) {
+            session.endDialog("It's %s. YOU WIN!", flip);
+        } else {
+            session.endDialog("Sorry... It was %s. you lost :(", flip);
+        }
+    }
+]);
+
+bot.dialog('/rollDice', [
+    function (session, args) {
+        builder.Prompts.number(session, "How many dice should I roll?");
+    },
+    function (session, results) {
+        if (results.response > 0) {
+            var msg = "I rolled:";
+            for (var i = 0; i < results.response; i++) {
+                var roll = Math.floor(Math.random() * 6) + 1;
+                msg += ' ' + roll.toString(); 
+            }
+            session.endDialog(msg);
+        } else {
+            session.endDialog("Ummm... Ok... I rolled air.");
+        }
+    }
+]);
+
+bot.dialog('/magicBall', [
+    function (session, args) {
+        builder.Prompts.text(session, "What is your question?");
+    },
+    function (session, results) {
+        // Use the SDK's built-in ability to pick a response at random.
+        session.endDialog(magicAnswers);
+    }
+]);
+
+var magicAnswers = [
+    "It is certain",
+    "It is decidedly so",
+    "Without a doubt",
+    "Yes, definitely",
+    "You may rely on it",
+    "As I see it, yes",
+    "Most likely",
+    "Outlook good",
+    "Yes",
+    "Signs point to yes",
+    "Reply hazy try again",
+    "Ask again later",
+    "Better not tell you now",
+    "Cannot predict now",
+    "Concentrate and ask again",
+    "Don't count on it",
+    "My reply is no",
+    "My sources say no",
+    "Outlook not so good",
+    "Very doubtful"
+];
