@@ -18,7 +18,7 @@ server.listen(process.env.port || process.env.PORT || 3978, function () {
   
 
 function getMessages(req, res, next) {
-    res.send('<html><body><h1>helloworld</h1></body></html>');
+    res.end('<html><body><h1>helloworld</h1></body></html>');
 });
 server.get('/', getMessages);
 
