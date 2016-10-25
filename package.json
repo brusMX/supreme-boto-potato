@@ -10,6 +10,7 @@
   "author": "Bruno Medina",
   "license": "ISC",
   "dependencies": {
-    "restify": ">=4.1.0"
+    "restify": ">=4.1.0",
+    "pmx": ">=0.6.8"
   }
 }
